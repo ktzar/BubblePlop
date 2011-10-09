@@ -31,7 +31,6 @@ class Stage():
         #group that stores all bubbles
         self.bubbles    = pygame.sprite.Group()
 
-        self.bubbles.add(Bubble(pygame.Rect((200,100, 10, 10))))
 
         #group for information sprites in the screen, should be rendered the last one
 
@@ -40,6 +39,14 @@ class Stage():
         self.game_started   = False
         self.game_finished  = False
         self.level_finished = False
+
+        self.bubbles_grid = []
+        for i in range(20):
+            row = []
+            for j in range(30):
+                row.append(Bubble(pygame.Rect(50+i*16, 100+j*16,40,40)))
+            self.bubbles_grid.append(row)
+
 
 
     def handle_keys(self):
@@ -57,7 +64,6 @@ class Stage():
     #Main Loop, return  bool = if the game is over
     def loop(self):
         exit = self.handle_keys()
-        print self.game_finished
         if self.game_finished:
             return True
         if exit == True:
@@ -77,6 +83,9 @@ class Stage():
 
         #draw the level
         all_sprites = pygame.sprite.Group()
+        for row in self.bubbles_grid:
+            for bubble in row:
+                self.bubbles.add(bubble)
         all_sprites.add(self.bubbles.sprites())
         all_sprites.update()
 
