@@ -12,6 +12,7 @@ class Bubble(pygame.sprite.Sprite):
         self.rect.top = position.top
         self.rect.left = position.left
 
+
     def update(self):
         pass
 

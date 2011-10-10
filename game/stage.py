@@ -18,6 +18,10 @@ class Stage():
         self.sounds = {};
         self.sounds['plop'] = utils.load_sound('plop.wav')
 
+        self.bubble_size    = (16,16)
+        self.bubble_offsets = (50,100)
+        self.grid_size      = (20,30)
+
         #Create The Backgound
         self.background, foo = utils.load_image('background.png')
 
@@ -41,15 +45,15 @@ class Stage():
         self.level_finished = False
 
         self.bubbles_grid = []
-        for i in range(20):
+        for i in range(self.grid_size[0]):
             row = []
-            for j in range(30):
-                row.append(Bubble(pygame.Rect(50+i*16, 100+j*16,40,40)))
+            for j in range(self.grid_size[1]):
+                row.append(Bubble(pygame.Rect(self.bubble_offsets[0]+i*16, self.bubble_offsets[1]+j*16,40,40)))
             self.bubbles_grid.append(row)
 
 
 
-    def handle_keys(self):
+    def handle_event(self):
         #Handle Input Events
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -59,11 +63,25 @@ class Stage():
                 self.game_finished = True
             elif event.type == KEYDOWN and self.game_started == False:
                 self.game_started = True
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                pos_x = (pos[0]-self.bubble_offsets[0]) / self.bubble_size[0]
+                pos_y = (pos[1]-self.bubble_offsets[1]) / self.bubble_size[1]
+
+                if  pos_x < 0 or pos_x > self.grid_size[0] or \
+                        pos_y < 1 or pos_y > self.grid_size[1]:
+                    print "Aim better mate"
+                else:
+                    print "{0}:{1}".format(pos_x,pos_y)
+                    self.bubbles_grid[pos_x][pos_y].rect.left = 0
+                    self.bubbles_grid[pos_x][pos_y].rect.top = 0
+
         return False
 
     #Main Loop, return  bool = if the game is over
     def loop(self):
-        exit = self.handle_keys()
+        exit = self.handle_event()
+        pygame.display.flip()
         if self.game_finished:
             return True
         if exit == True:
@@ -85,7 +103,8 @@ class Stage():
         all_sprites = pygame.sprite.Group()
         for row in self.bubbles_grid:
             for bubble in row:
-                self.bubbles.add(bubble)
+                if bubble != False:
+                    self.bubbles.add(bubble)
         all_sprites.add(self.bubbles.sprites())
         all_sprites.update()
 
