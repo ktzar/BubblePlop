@@ -2,6 +2,7 @@
 import os, pygame, time
 from pygame.locals import *
 from stage import *
+from menus import *
 
 
 def BubblePlop():
@@ -16,12 +17,19 @@ def BubblePlop():
 #icon, foo = utils.load_image('icon.png')
 #pygame.display.set_icon(icon)
 
-    stage = Stage(screen)
+    stage   = Stage(screen)
+    menu    = Menu(screen)
+    about   = About(screen)
     clock = pygame.time.Clock()
 
     while 1:
         clock.tick(100)
-        finished = stage.loop()
-        if finished == True:
+        if menu.selected_option == -1:
+            menu.loop()
+        elif menu.selected_option == 0:
+            stage.loop()
+        elif menu.selected_option == 3:
+            about.loop()
+        elif menu.selected_option == 4:
             pygame.quit()
             quit()
