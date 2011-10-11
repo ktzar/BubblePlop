@@ -56,47 +56,72 @@ class Stage():
                 self.bubbles.add(bubble)
             self.bubbles_grid.append(row)
 
-    def process_holes(self):
+    def column_fall(self, x,y):
+        for i in range(y):
+            _y = y-i
+            if self.bubbles_grid[x][_y] == False:
+                self.bubbles_grid[x][_y+1] = False
+            else:
+                self.bubbles_grid[x][_y].rect.top += self.bubble_size[1]
+                self.bubbles_grid[x][_y] = self.bubbles_grid[x][_y-1]
 
+    def process_holes(self):
+        for x in range(self.grid_size[0]):
+            for y in range(self.grid_size[1]):
+                #From bottom to top
+                if self.bubbles_grid[x][self.grid_size[1]-y-1] == False:
+                    self.column_fall(x,y)
+        pass
 
     def find_surrounding(self,x,y,rec=0):
         if rec > 6:
             return []
         matched = [[x,y]]
-        if self.bubbles_grid[x][y-1].value == self.bubbles_grid[x][y].value:
-            returned = self.find_surrounding(x,y-1, rec+1)
-            for ret in returned:
-                matched.append(ret)
-        if self.bubbles_grid[x][y+1].value == self.bubbles_grid[x][y].value:
-            returned = self.find_surrounding(x,y+1, rec+1)
-            for ret in returned:
-                matched.append(ret)
-        if self.bubbles_grid[x+1][y].value == self.bubbles_grid[x][y].value:
-            returned = self.find_surrounding(x+1,y, rec+1)
-            for ret in returned:
-                matched.append(ret)
-        if self.bubbles_grid[x-1][y].value == self.bubbles_grid[x][y].value:
-            returned = self.find_surrounding(x-1,y, rec+1)
-            for ret in returned:
-                matched.append(ret)
-        if x%2 == 0:
-            if self.bubbles_grid[x-1][y-1].value == self.bubbles_grid[x][y].value:
-                returned = self.find_surrounding(x-1,y-1, rec+1)
+        try:
+            #Check the surounding bubbles if the current is not in the border
+            #top
+            if y>0 and self.bubbles_grid[x][y-1].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x,y-1, rec+1)
                 for ret in returned:
                     matched.append(ret)
-            if self.bubbles_grid[x+1][y-1].value == self.bubbles_grid[x][y].value:
-                returned = self.find_surrounding(x+1,y-1, rec+1)
+            #Bottom
+            if y<self.grid_size[1]-1 and self.bubbles_grid[x][y+1].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x,y+1, rec+1)
                 for ret in returned:
                     matched.append(ret)
-        else:
-            if self.bubbles_grid[x-1][y+1].value == self.bubbles_grid[x][y].value:
-                returned = self.find_surrounding(x-1,y+1, rec+1)
+            #Right
+            if x < self.grid_size[0] and self.bubbles_grid[x+1][y].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x+1,y, rec+1)
                 for ret in returned:
                     matched.append(ret)
-            if self.bubbles_grid[x+1][y+1].value == self.bubbles_grid[x][y].value:
-                returned = self.find_surrounding(x+1,y+1, rec+1)
+            #Left
+            if x > 0 and self.bubbles_grid[x-1][y].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x-1,y, rec+1)
                 for ret in returned:
                     matched.append(ret)
+            #If the column is even, check on the sides' top corners of the current bubble
+            if x%2 == 0:
+                if self.bubbles_grid[x-1][y-1].value == self.bubbles_grid[x][y].value:
+                    returned = self.find_surrounding(x-1,y-1, rec+1)
+                    for ret in returned:
+                        matched.append(ret)
+                if self.bubbles_grid[x+1][y-1].value == self.bubbles_grid[x][y].value:
+                    returned = self.find_surrounding(x+1,y-1, rec+1)
+                    for ret in returned:
+                        matched.append(ret)
+            #If the column is odd, check on the sides' bottom corners of the current bubble
+            else:
+                if self.bubbles_grid[x-1][y+1].value == self.bubbles_grid[x][y].value:
+                    returned = self.find_surrounding(x-1,y+1, rec+1)
+                    for ret in returned:
+                        matched.append(ret)
+                if self.bubbles_grid[x+1][y+1].value == self.bubbles_grid[x][y].value:
+                    returned = self.find_surrounding(x+1,y+1, rec+1)
+                    for ret in returned:
+                        matched.append(ret)
+        except:
+            #This is normal, there will be some attemps to access non-existing values in the grid
+            pass
         print "matched"
         print matched
         return matched
@@ -129,7 +154,11 @@ class Stage():
                     print "{0}:{1}".format(pos_x,pos_y)
                     surrounding_bubbles = self.find_surrounding(pos_x,pos_y)
                     for surrounding_bubble in surrounding_bubbles:
-                        self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].kill()#.rect.left = 0
+                        if self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] != False:
+                            self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].kill()#.rect.left = 0
+                            self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] = False
+                    self.process_holes()
+                        
 
         return False
 
