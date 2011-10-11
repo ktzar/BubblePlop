@@ -8,7 +8,8 @@ class Bubble(pygame.sprite.Sprite):
 
     def __init__(self, position):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = utils.load_image(Bubble.images[random.randint(0,len(Bubble.images)-1)])
+        self.value = random.randint(1,len(Bubble.images))
+        self.image, self.rect = utils.load_image(Bubble.images[self.value-1])
         self.rect.top = position.top
         self.rect.left = position.left
 

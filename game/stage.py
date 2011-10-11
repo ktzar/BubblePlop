@@ -18,7 +18,7 @@ class Stage():
         self.sounds = {};
         self.sounds['plop'] = utils.load_sound('plop.wav')
 
-        self.bubble_size    = (16,16)
+        self.bubble_size    = (16,18)
         self.bubble_offsets = (50,100)
         self.grid_size      = (20,30)
 
@@ -48,9 +48,56 @@ class Stage():
         for i in range(self.grid_size[0]):
             row = []
             for j in range(self.grid_size[1]):
-                row.append(Bubble(pygame.Rect(self.bubble_offsets[0]+i*16, self.bubble_offsets[1]+j*16,40,40)))
+                bubble = Bubble(pygame.Rect(\
+                        self.bubble_offsets[0]+i*self.bubble_size[0],\
+                        self.bubble_offsets[1]+j*(self.bubble_size[1])+(i%2)*self.bubble_size[1]/2,\
+                        self.bubble_size[0],self.bubble_size[1]))
+                row.append(bubble)
+                self.bubbles.add(bubble)
             self.bubbles_grid.append(row)
 
+
+    def find_surrounding(self,x,y,rec=0):
+        if rec > 6:
+            return []
+        matched = [[x,y]]
+        if self.bubbles_grid[x][y-1].value == self.bubbles_grid[x][y].value:
+            returned = self.find_surrounding(x,y-1, rec+1)
+            for ret in returned:
+                matched.append(ret)
+        if self.bubbles_grid[x][y+1].value == self.bubbles_grid[x][y].value:
+            returned = self.find_surrounding(x,y+1, rec+1)
+            for ret in returned:
+                matched.append(ret)
+        if self.bubbles_grid[x+1][y].value == self.bubbles_grid[x][y].value:
+            returned = self.find_surrounding(x+1,y, rec+1)
+            for ret in returned:
+                matched.append(ret)
+        if self.bubbles_grid[x-1][y].value == self.bubbles_grid[x][y].value:
+            returned = self.find_surrounding(x-1,y, rec+1)
+            for ret in returned:
+                matched.append(ret)
+        if x%2 == 0:
+            if self.bubbles_grid[x-1][y-1].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x-1,y-1, rec+1)
+                for ret in returned:
+                    matched.append(ret)
+            if self.bubbles_grid[x+1][y-1].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x+1,y-1, rec+1)
+                for ret in returned:
+                    matched.append(ret)
+        else:
+            if self.bubbles_grid[x-1][y+1].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x-1,y+1, rec+1)
+                for ret in returned:
+                    matched.append(ret)
+            if self.bubbles_grid[x+1][y+1].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x+1,y+1, rec+1)
+                for ret in returned:
+                    matched.append(ret)
+        print "matched"
+        print matched
+        return matched
 
 
     def handle_event(self):
@@ -66,15 +113,22 @@ class Stage():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 pos_x = (pos[0]-self.bubble_offsets[0]) / self.bubble_size[0]
-                pos_y = (pos[1]-self.bubble_offsets[1]) / self.bubble_size[1]
+
+                #clicks in even columns need to be shifted half a bubble's size
+                offset_y = ((pos_x)%2) *(self.bubble_size[1]/2)
+                print offset_y
+
+                pos_y = (pos[1]-self.bubble_offsets[1]-offset_y) / self.bubble_size[1]
 
                 if  pos_x < 0 or pos_x > self.grid_size[0] or \
                         pos_y < 1 or pos_y > self.grid_size[1]:
                     print "Aim better mate"
                 else:
                     print "{0}:{1}".format(pos_x,pos_y)
-                    self.bubbles_grid[pos_x][pos_y].rect.left = 0
-                    self.bubbles_grid[pos_x][pos_y].rect.top = 0
+                    surrounding_bubbles = self.find_surrounding(pos_x,pos_y)
+                    for surrounding_bubble in surrounding_bubbles:
+                        self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].kill()#.rect.left = 0
+                    self.bubbles_grid[pos_x][pos_y].kill()#.rect.left = 0
 
         return False
 
@@ -99,19 +153,8 @@ class Stage():
             pygame.display.flip()
             return False
 
-        #draw the level
-        all_sprites = pygame.sprite.Group()
-        for row in self.bubbles_grid:
-            for bubble in row:
-                if bubble != False:
-                    self.bubbles.add(bubble)
-        all_sprites.add(self.bubbles.sprites())
-        all_sprites.update()
 
-        #self.screen.blit(all_sprites, (0, 0))
-        all_sprites.draw(self.screen)
-
-        #Move and draw the background
+        #Draw background and HUD
         score_text = "Score: {0}".format(self.score)
         text = self.font.render(score_text, 1, (255, 255, 255))
         text_shadow = self.font.render(score_text, 1, (0,0,0))
@@ -120,13 +163,16 @@ class Stage():
         self.screen.blit(text_shadow, (12, 12))
         self.screen.blit(text, (10, 10))
 
+        #draw the level
+        self.bubbles.update()
+
         if self.game_finished == True:
             gameover_text = self.font.render("Game Over", 2, (255, 255, 255))
             self.screen.blit(gameover_text, (200, 200))
             gameover_text = self.font.render("Press Esc", 2, (255, 255, 255))
             self.screen.blit(gameover_text, (200, 230))
         else:
-            all_sprites.draw(self.screen)
+            self.bubbles.draw(self.screen)
 
         #draw all the groups of sprites
         pygame.display.flip()
