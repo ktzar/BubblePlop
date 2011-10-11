@@ -18,9 +18,9 @@ class Stage():
         self.sounds = {};
         self.sounds['plop'] = utils.load_sound('plop.wav')
 
-        self.bubble_size    = (16,18)
+        self.bubble_size    = (32,32)
         self.bubble_offsets = (50,100)
-        self.grid_size      = (20,30)
+        self.grid_size      = (10,15)
 
         #Create The Backgound
         self.background, foo = utils.load_image('background.png')
@@ -59,18 +59,22 @@ class Stage():
     def column_fall(self, x,y):
         for i in range(y):
             _y = y-i
-            if self.bubbles_grid[x][_y] == False:
-                self.bubbles_grid[x][_y+1] = False
-            else:
-                self.bubbles_grid[x][_y].rect.top += self.bubble_size[1]
+            print "fall ",_y
+            if self.bubbles_grid[x][_y-1] != False:
+                self.bubbles_grid[x][_y-1].rect.top += self.bubble_size[1]
                 self.bubbles_grid[x][_y] = self.bubbles_grid[x][_y-1]
+            if self.bubbles_grid[x][_y-1] == False:
+                self.bubbles_grid[x][_y] = False
 
     def process_holes(self):
         for x in range(self.grid_size[0]):
             for y in range(self.grid_size[1]):
                 #From bottom to top
-                if self.bubbles_grid[x][self.grid_size[1]-y-1] == False:
-                    self.column_fall(x,y)
+                _y = self.grid_size[1] - y - 1
+                if self.bubbles_grid[x][_y] == False:
+                    print "Column fall {0},{1}".format(x,_y)
+                    self.column_fall(x,_y)
+
         pass
 
     def find_surrounding(self,x,y,rec=0):
@@ -156,6 +160,8 @@ class Stage():
                     for surrounding_bubble in surrounding_bubbles:
                         if self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] != False:
                             self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].kill()#.rect.left = 0
+                            a = utils.load_sound('plop.wav')
+                            a.play()
                             self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] = False
                     self.process_holes()
                         
