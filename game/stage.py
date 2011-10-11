@@ -56,6 +56,8 @@ class Stage():
                 self.bubbles.add(bubble)
             self.bubbles_grid.append(row)
 
+    def process_holes(self):
+
 
     def find_surrounding(self,x,y,rec=0):
         if rec > 6:
@@ -128,7 +130,6 @@ class Stage():
                     surrounding_bubbles = self.find_surrounding(pos_x,pos_y)
                     for surrounding_bubble in surrounding_bubbles:
                         self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].kill()#.rect.left = 0
-                    self.bubbles_grid[pos_x][pos_y].kill()#.rect.left = 0
 
         return False
 
