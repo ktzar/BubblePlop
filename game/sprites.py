@@ -3,18 +3,26 @@ from pygame.locals import *
 import utils
 
 class Bubble(pygame.sprite.Sprite):
-
-    images = ['bubble_1.png', 'bubble_2.png', 'bubble_3.png']#, 'bubble_4.png', 'bubble_5.png']
+    #TODO add the size of the bubble here
+    images = ['bubble_1.png', 'bubble_2.png', 'bubble_3.png', 'bubble_4.png']#, 'bubble_5.png']
 
     def __init__(self, position):
         pygame.sprite.Sprite.__init__(self)
         self.value = random.randint(1,len(Bubble.images))
         self.image, self.rect = utils.load_image(Bubble.images[self.value-1])
         self.rect.top = position.top
+        self.target_top = position.top
         self.rect.left = position.left
+
+    def move_down(self):
+        self.target_top = self.target_top + 32
 
 
     def update(self):
+        if self.rect.top < self.target_top:
+            self.rect.top += ((self.target_top - self.rect.top)/5) + 2
+            if self.rect.top > self.target_top:
+                self.rect.top = self.target_top
         pass
 
 class Flying_Score(pygame.sprite.Sprite):

@@ -79,7 +79,8 @@ class Stage():
                 self.bubbles_grid[x][_y] = False
             else:
                 self.bubbles_grid[x][_y] = self.bubbles_grid[x][_y-1]
-                self.bubbles_grid[x][_y-1].rect.top += self.bubble_size[1]
+                #self.bubbles_grid[x][_y].rect.top += self.bubble_size[1]
+                self.bubbles_grid[x][_y].move_down()
         self.bubbles_grid[x][0] = False
 
     def process_holes(self):
