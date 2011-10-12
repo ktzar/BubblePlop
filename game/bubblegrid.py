@@ -95,21 +95,21 @@ class Bubblegrid():
                     matched.append(ret)
             #If the column is even, check on the sides' top corners of the current bubble
             if x%2 == 0:
-                if [x-1,y-1]!= parent and self.bubbles_grid[x-1][y-1].value == self.bubbles_grid[x][y].value:
+                if x > 0 and [x-1,y-1]!= parent and self.bubbles_grid[x-1][y-1].value == self.bubbles_grid[x][y].value:
                     returned = self.find_surrounding(x-1,y-1, rec+1, [x,y])
                     for ret in returned:
                         matched.append(ret)
-                if [x+1,y-1]!= parent and self.bubbles_grid[x+1][y-1].value == self.bubbles_grid[x][y].value:
+                if x < self.grid_size[0] and [x+1,y-1]!= parent and self.bubbles_grid[x+1][y-1].value == self.bubbles_grid[x][y].value:
                     returned = self.find_surrounding(x+1,y-1, rec+1, [x,y])
                     for ret in returned:
                         matched.append(ret)
             #If the column is odd, check on the sides' bottom corners of the current bubble
             else:
-                if [x-1,y-1]!= parent and self.bubbles_grid[x-1][y+1].value == self.bubbles_grid[x][y].value:
+                if x > 0 and [x-1,y-1]!= parent and self.bubbles_grid[x-1][y+1].value == self.bubbles_grid[x][y].value:
                     returned = self.find_surrounding(x-1,y+1, rec+1, [x,y])
                     for ret in returned:
                         matched.append(ret)
-                if [x+1,y-1]!= parent and self.bubbles_grid[x+1][y+1].value == self.bubbles_grid[x][y].value:
+                if x < self.grid_size[0] and [x+1,y-1]!= parent and self.bubbles_grid[x+1][y+1].value == self.bubbles_grid[x][y].value:
                     returned = self.find_surrounding(x+1,y+1, rec+1, [x,y])
                     for ret in returned:
                         matched.append(ret)
@@ -142,13 +142,15 @@ class Bubblegrid():
         else:
             if self.debug: print "{0}:{1}".format(pos_x,pos_y)
             surrounding_bubbles = self.find_surrounding(pos_x,pos_y)
-            #kill the surrounding bubbles and set them to false in the references grid
-            for surrounding_bubble in surrounding_bubbles:
-                if self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] != False:
-                    exploded.append(self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].rect)
-                    self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].kill()#.rect.left = 0
-                    self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] = False
-                self.process_holes()
-            if self.debug: print_grid()
+            #If the group is smalles than 3 balls, do nothing
+            if len(surrounding_bubbles) > 2:
+                #kill the surrounding bubbles and set them to false in the references grid
+                for surrounding_bubble in surrounding_bubbles:
+                    if self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] != False:
+                        exploded.append(self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].rect)
+                        self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].kill()#.rect.left = 0
+                        self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] = False
+                    self.process_holes()
+                if self.debug: print_grid()
         return exploded
 
