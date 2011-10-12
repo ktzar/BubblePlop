@@ -23,10 +23,6 @@ class Stage():
         #Create The Backgound
         self.background, foo = utils.load_image('background.png')
 
-        #game variables
-        self.score  = 0
-        self.show_score  = 0
-
         #Display The Background
         self.screen.blit(self.background, (0, 0))
         pygame.display.flip()
@@ -35,7 +31,12 @@ class Stage():
         self.bubbles            = pygame.sprite.Group()
         self.flying_scores      = pygame.sprite.Group()
 
-        self.bubble_grid_obj = Bubblegrid(10,15,self.bubbles)
+        #game variables
+        self.score  = Score_Meter((10,10,10,10))
+        self.flying_scores.add(self.score)
+
+
+        self.bubble_grid = Bubblegrid(10,15,self.bubbles)
 
         #group for information sprites in the screen, should be rendered the last one
 
@@ -58,9 +59,9 @@ class Stage():
                 self.game_started = True
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                exploded = self.bubble_grid_obj.process_click(pos)
+                exploded = self.bubble_grid.process_click(pos)
                 for exploded_bubble in exploded:
-                    self.score += 100
+                    self.score.add_score(100)
                     a = self.sounds['plop']
                     a.play()
                     flying_score = Flying_Score(exploded_bubble, 100)
@@ -71,7 +72,7 @@ class Stage():
     #Main Loop, return  bool = if the game is over
     def loop(self):
         exit = self.handle_event()
-        pygame.display.flip()
+        self.screen.blit(self.background, (0, 0))
         if self.game_finished:
             return True
         if exit == True:
@@ -89,19 +90,8 @@ class Stage():
             pygame.display.flip()
             return False
 
-        if self.show_score < self.score: 
-            self.show_score += random.randint(17,23)
-            if self.show_score > self.score: 
-                self.show_score = self.score
 
-        #Draw background and HUD
-        score_text = "Score: {0}".format(self.show_score)
-        text = self.font.render(score_text, 1, (255, 255, 255))
-        text_shadow = self.font.render(score_text, 1, (0,0,0))
 
-        self.screen.blit(self.background, (0, 0))
-        self.screen.blit(text_shadow, (12, 12))
-        self.screen.blit(text, (10, 10))
 
         #draw the level
         self.bubbles.update()

@@ -63,52 +63,54 @@ class Bubblegrid():
 
     #Return an array of positions with bubbles of the same colour than the one in x,y
     #is recursive
-    def find_surrounding(self,x,y,rec=0):
+    def find_surrounding(self,x,y,rec=0, parent=False):
         #The max level of recurivity
-        if rec > 6:
+        #TODO Create zeroes "matched" array of width*height and put 1 in the bubbles found, check that array as well
+        #musy be much faster
+        if rec > 10:
             return []
         #Add the current one
         matched = [[x,y]]
         try:
             #Check the surounding bubbles if the current is not in the border
             #top
-            if y>0 and self.bubbles_grid[x][y-1].value == self.bubbles_grid[x][y].value:
-                returned = self.find_surrounding(x,y-1, rec+1)
+            if y>0 and [x,y-1]!= parent and self.bubbles_grid[x][y-1].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x,y-1, rec+1, [x,y])
                 for ret in returned:
                     matched.append(ret)
             #Bottom
-            if y<self.grid_size[1]-1 and self.bubbles_grid[x][y+1].value == self.bubbles_grid[x][y].value:
-                returned = self.find_surrounding(x,y+1, rec+1)
+            if y<self.grid_size[1]-1 and [x,y+1]!= parent and self.bubbles_grid[x][y+1].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x,y+1, rec+1, [x,y])
                 for ret in returned:
                     matched.append(ret)
             #Right
-            if x < self.grid_size[0] and self.bubbles_grid[x+1][y].value == self.bubbles_grid[x][y].value:
-                returned = self.find_surrounding(x+1,y, rec+1)
+            if x < self.grid_size[0] and [x+1,y]!= parent and self.bubbles_grid[x+1][y].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x+1,y, rec+1, [x,y])
                 for ret in returned:
                     matched.append(ret)
             #Left
-            if x > 0 and self.bubbles_grid[x-1][y].value == self.bubbles_grid[x][y].value:
-                returned = self.find_surrounding(x-1,y, rec+1)
+            if x > 0 and [x-1,y]!= parent and self.bubbles_grid[x-1][y].value == self.bubbles_grid[x][y].value:
+                returned = self.find_surrounding(x-1,y, rec+1, [x,y])
                 for ret in returned:
                     matched.append(ret)
             #If the column is even, check on the sides' top corners of the current bubble
             if x%2 == 0:
-                if self.bubbles_grid[x-1][y-1].value == self.bubbles_grid[x][y].value:
-                    returned = self.find_surrounding(x-1,y-1, rec+1)
+                if [x-1,y-1]!= parent and self.bubbles_grid[x-1][y-1].value == self.bubbles_grid[x][y].value:
+                    returned = self.find_surrounding(x-1,y-1, rec+1, [x,y])
                     for ret in returned:
                         matched.append(ret)
-                if self.bubbles_grid[x+1][y-1].value == self.bubbles_grid[x][y].value:
-                    returned = self.find_surrounding(x+1,y-1, rec+1)
+                if [x+1,y-1]!= parent and self.bubbles_grid[x+1][y-1].value == self.bubbles_grid[x][y].value:
+                    returned = self.find_surrounding(x+1,y-1, rec+1, [x,y])
                     for ret in returned:
                         matched.append(ret)
             #If the column is odd, check on the sides' bottom corners of the current bubble
             else:
-                if self.bubbles_grid[x-1][y+1].value == self.bubbles_grid[x][y].value:
-                    returned = self.find_surrounding(x-1,y+1, rec+1)
+                if [x-1,y-1]!= parent and self.bubbles_grid[x-1][y+1].value == self.bubbles_grid[x][y].value:
+                    returned = self.find_surrounding(x-1,y+1, rec+1, [x,y])
                     for ret in returned:
                         matched.append(ret)
-                if self.bubbles_grid[x+1][y+1].value == self.bubbles_grid[x][y].value:
-                    returned = self.find_surrounding(x+1,y+1, rec+1)
+                if [x+1,y-1]!= parent and self.bubbles_grid[x+1][y+1].value == self.bubbles_grid[x][y].value:
+                    returned = self.find_surrounding(x+1,y+1, rec+1, [x,y])
                     for ret in returned:
                         matched.append(ret)
         except:
