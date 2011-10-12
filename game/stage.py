@@ -56,15 +56,28 @@ class Stage():
                 self.bubbles.add(bubble)
             self.bubbles_grid.append(row)
 
+    def print_grid(self):
+        output = ""
+        for j in range(self.grid_size[1]):
+            for i in range(self.grid_size[0]):
+                if self.bubbles_grid[i][j] != False:
+                    output = "{0}{1}".format(output, self.bubbles_grid[i][j].value)
+                else:
+                    output += "X"
+
+            output += "\n"
+        print output
+
     def column_fall(self, x,y):
         for i in range(y):
             _y = y-i
             print "fall ",_y
-            if self.bubbles_grid[x][_y-1] != False:
-                self.bubbles_grid[x][_y-1].rect.top += self.bubble_size[1]
-                self.bubbles_grid[x][_y] = self.bubbles_grid[x][_y-1]
             if self.bubbles_grid[x][_y-1] == False:
                 self.bubbles_grid[x][_y] = False
+            else:
+                self.bubbles_grid[x][_y] = self.bubbles_grid[x][_y-1]
+                self.bubbles_grid[x][_y-1].rect.top += self.bubble_size[1]
+        self.bubbles_grid[x][0] = False
 
     def process_holes(self):
         for x in range(self.grid_size[0]):
@@ -126,6 +139,7 @@ class Stage():
         except:
             #This is normal, there will be some attemps to access non-existing values in the grid
             pass
+        matched = utils.unique(matched)
         print "matched"
         print matched
         return matched
@@ -151,20 +165,21 @@ class Stage():
 
                 pos_y = (pos[1]-self.bubble_offsets[1]-offset_y) / self.bubble_size[1]
 
-                if  pos_x < 0 or pos_x > self.grid_size[0] or \
-                        pos_y < 1 or pos_y > self.grid_size[1]:
+                if  pos_x < 0 or pos_x > self.grid_size[0]-1 or \
+                        pos_y < 1 or pos_y > self.grid_size[1]-1:
                     print "Aim better mate"
                 else:
                     print "{0}:{1}".format(pos_x,pos_y)
                     surrounding_bubbles = self.find_surrounding(pos_x,pos_y)
+                    #surrounding_bubbles = [[pos_x,pos_y]]
                     for surrounding_bubble in surrounding_bubbles:
                         if self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] != False:
                             self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].kill()#.rect.left = 0
-                            a = utils.load_sound('plop.wav')
+                            a = self.sounds['plop']
                             a.play()
                             self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] = False
-                    self.process_holes()
-                        
+                        self.process_holes()
+                    self.print_grid()
 
         return False
 

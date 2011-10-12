@@ -4,7 +4,7 @@ import utils
 
 class Bubble(pygame.sprite.Sprite):
 
-    images = ['bubble_1.png', 'bubble_2.png', 'bubble_3.png', 'bubble_4.png', 'bubble_5.png']
+    images = ['bubble_1.png', 'bubble_2.png', 'bubble_3.png']#, 'bubble_4.png', 'bubble_5.png']
 
     def __init__(self, position):
         pygame.sprite.Sprite.__init__(self)
