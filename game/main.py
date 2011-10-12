@@ -30,6 +30,8 @@ def BubblePlop():
             stage.loop()
         elif menu.selected_option == 3:
             about.loop()
+            if about.finished == True:
+                menu = Menu(screen)
         elif menu.selected_option == 4:
             pygame.quit()
             quit()

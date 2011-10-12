@@ -8,6 +8,7 @@ class Stage():
     def __init__(self, screen):
         self.screen = screen
         self.initialise()
+        self.debug = False
 
     def initialise(self):
         #Initialize Everything
@@ -27,18 +28,20 @@ class Stage():
 
         #game variables
         self.score  = 0
+        self.show_score  = 0
 
         #Display The Background
         self.screen.blit(self.background, (0, 0))
         pygame.display.flip()
 
         #group that stores all bubbles
-        self.bubbles    = pygame.sprite.Group()
+        self.bubbles            = pygame.sprite.Group()
+        self.flying_scores      = pygame.sprite.Group()
 
 
         #group for information sprites in the screen, should be rendered the last one
 
-        self.font = utils.load_font('saloon.ttf', 20)
+        self.font = utils.load_font('chitown.ttf', 20)
 
         self.game_started   = False
         self.game_finished  = False
@@ -71,7 +74,7 @@ class Stage():
     def column_fall(self, x,y):
         for i in range(y):
             _y = y-i
-            print "fall ",_y
+            if self.debug : print "fall ",_y
             if self.bubbles_grid[x][_y-1] == False:
                 self.bubbles_grid[x][_y] = False
             else:
@@ -85,7 +88,7 @@ class Stage():
                 #From bottom to top
                 _y = self.grid_size[1] - y - 1
                 if self.bubbles_grid[x][_y] == False:
-                    print "Column fall {0},{1}".format(x,_y)
+                    if self.debug:print "Column fall {0},{1}".format(x,_y)
                     self.column_fall(x,_y)
 
         pass
@@ -140,8 +143,8 @@ class Stage():
             #This is normal, there will be some attemps to access non-existing values in the grid
             pass
         matched = utils.unique(matched)
-        print "matched"
-        print matched
+        if self.debug:print "matched"
+        if self.debug:print matched
         return matched
 
 
@@ -161,25 +164,28 @@ class Stage():
 
                 #clicks in even columns need to be shifted half a bubble's size
                 offset_y = ((pos_x)%2) *(self.bubble_size[1]/2)
-                print offset_y
+                if self.debug:print offset_y
 
                 pos_y = (pos[1]-self.bubble_offsets[1]-offset_y) / self.bubble_size[1]
 
                 if  pos_x < 0 or pos_x > self.grid_size[0]-1 or \
                         pos_y < 1 or pos_y > self.grid_size[1]-1:
-                    print "Aim better mate"
+                    if self.debug:print "Aim better mate"
                 else:
-                    print "{0}:{1}".format(pos_x,pos_y)
+                    if self.debug: print "{0}:{1}".format(pos_x,pos_y)
                     surrounding_bubbles = self.find_surrounding(pos_x,pos_y)
                     #surrounding_bubbles = [[pos_x,pos_y]]
                     for surrounding_bubble in surrounding_bubbles:
                         if self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] != False:
                             self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].kill()#.rect.left = 0
+                            self.score += 100
                             a = self.sounds['plop']
                             a.play()
+                            flying_score = Flying_Score(self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]].rect, 100)
+                            self.flying_scores.add(flying_score)
                             self.bubbles_grid[surrounding_bubble[0]][surrounding_bubble[1]] = False
                         self.process_holes()
-                    self.print_grid()
+                    if self.debug: print_grid()
 
         return False
 
@@ -204,9 +210,13 @@ class Stage():
             pygame.display.flip()
             return False
 
+        if self.show_score < self.score: 
+            self.show_score += random.randint(17,23)
+            if self.show_score > self.score: 
+                self.show_score = self.score
 
         #Draw background and HUD
-        score_text = "Score: {0}".format(self.score)
+        score_text = "Score: {0}".format(self.show_score)
         text = self.font.render(score_text, 1, (255, 255, 255))
         text_shadow = self.font.render(score_text, 1, (0,0,0))
 
@@ -216,6 +226,7 @@ class Stage():
 
         #draw the level
         self.bubbles.update()
+        self.flying_scores.update()
 
         if self.game_finished == True:
             gameover_text = self.font.render("Game Over", 2, (255, 255, 255))
@@ -224,6 +235,7 @@ class Stage():
             self.screen.blit(gameover_text, (200, 230))
         else:
             self.bubbles.draw(self.screen)
+            self.flying_scores.draw(self.screen)
 
         #draw all the groups of sprites
         pygame.display.flip()

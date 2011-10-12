@@ -17,4 +17,23 @@ class Bubble(pygame.sprite.Sprite):
     def update(self):
         pass
 
+class Flying_Score(pygame.sprite.Sprite):
 
+    def __init__(self, position, score):
+        self.age = 0
+        pygame.sprite.Sprite.__init__(self)
+        font = utils.load_font('chitown.ttf', 20)
+        score = '{0}'.format(score)
+        surf_text = font.render(score, 2, (255,255,255))
+        self.image = pygame.Surface(font.size(score))
+        self.image.blit(surf_text, (0,0))
+        self.rect = position
+        self.image.set_colorkey((0,0,0))
+
+    def update(self):
+        new_alpha = max(0,255-self.age * 25)
+        self.image.set_alpha (new_alpha)
+        self.age += 1
+        self.rect.top -= self.age/2 + random.randint(1,10)
+        if self.age > 11:
+            self.kill()
