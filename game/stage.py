@@ -36,7 +36,7 @@ class Stage():
         self.flying_scores.add(self.score)
 
 
-        self.bubble_grid = Bubblegrid(10,15,self.bubbles)
+        self.bubble_grid = Bubblegrid(13,20,self.bubbles)
 
         #group for information sprites in the screen, should be rendered the last one
 
